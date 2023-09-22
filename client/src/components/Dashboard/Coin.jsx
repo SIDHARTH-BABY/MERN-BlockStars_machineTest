@@ -1,31 +1,47 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { addCoinDetails, fetchALLCoins } from "../../services/Coin";
 
 const Coin = () => {
   const coinNameRef = useRef();
   const cointPriceRef = useRef();
 
+  const [coinData, setCoinData] = useState([]);
+  const [itemAdded, setItemAdded] = useState();
+  const [validate, setValidate] = useState(true);
+  const [numValidate, setNumValidate] = useState(true);
   useEffect(() => {
     try {
       const getItems = async () => {
         const response = await fetchALLCoins();
         if (response.data.success) {
-          console.log(response.data);
+          setCoinData(response.data.data);
         }
       };
       getItems();
     } catch (error) {}
-  });
+  }, [itemAdded]);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    let coinName = coinNameRef.current.value;
+    let coinPrice = parseFloat(cointPriceRef.current.value);
+    setValidate(true);
+    setNumValidate(true);
+    if (coinName === "" || isNaN(coinPrice)) {
+      if (coinName === "") {
+        setValidate(false);
+      }
+      if (isNaN(coinPrice)) {
+        setNumValidate(false);
+      }
+      return; // Exit early if there are validation errors
+    }
     try {
-      e.preventDefault();
-      let coinName = coinNameRef.current.value;
-      let coinPrice = parseFloat(cointPriceRef.current.value);
-
       const response = await addCoinDetails(coinName, coinPrice);
       if (response.data.success) {
-        console.log(response.data, "success");
+        setItemAdded(response.data.data);
+        coinNameRef.current.value = "";
+        cointPriceRef.current.value = "";
       }
     } catch (error) {}
   };
@@ -65,6 +81,10 @@ const Coin = () => {
     "
               />
             </label>
+            <p class="mt-2  peer-invalid:visible text-pink-600 text-sm">
+              {!validate && "Enter a value in the Coin Name field"}
+              {!numValidate && "Enter a valid number in the Price field"}
+            </p>
             <button
               type="submit"
               class="rounded-full bg-sky-600 w-28 mt-5 h-7 text-sm font-semibold"
@@ -74,7 +94,7 @@ const Coin = () => {
           </form>
         </div>
       </div>
-      <div class="flex justify-center mt-16">
+      <div class="flex justify-center mt-28">
         <table class="table-auto border-separate border-spacing-2 border border-slate-500">
           <thead>
             <tr>
@@ -83,19 +103,23 @@ const Coin = () => {
               <th class="border border-slate-600 bg-green-200">Time</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="border border-slate-600 bg-violet-300 font-semibold">
-                The Sliding Mr. Bones (Next Stop, Pottersville)
-              </td>
-              <td class="border border-slate-600 bg-violet-300 font-semibold ">
-                Malcolm Lockyer
-              </td>
-              <td class="border border-slate-600 bg-violet-300 font-semibold ">
-                Malcolm Lockyer
-              </td>
-            </tr>
-          </tbody>
+          {coinData
+            ? coinData.map((data, index) => (
+                <tbody>
+                  <tr key={data._id}>
+                    <td class="border border-slate-600 bg-violet-300 font-semibold">
+                      {data.coinName}
+                    </td>
+                    <td class="border border-slate-600 bg-violet-300 font-semibold ">
+                      {data.price}
+                    </td>
+                    <td class="border border-slate-600 bg-violet-300 font-semibold ">
+                      {data.createdAt}
+                    </td>
+                  </tr>
+                </tbody>
+              ))
+            : ""}
         </table>
       </div>
     </div>

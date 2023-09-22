@@ -13,20 +13,27 @@ export const addCoinDetails = async (req, res) => {
     }
 
     if (coinPrice >= 1) {
-      // Round to two decimal places for coinPrice >= 1
       updatedCoinPrice = Math.round(coinPrice * 100) / 100;
-      console.log(updatedCoinPrice, "in the if else case");
     } else {
-      // Round to seven decimal places for coinPrice < 1
       updatedCoinPrice = Math.round(coinPrice * 10000000) / 10000000;
     }
 
     const createdAt = new Date();
-    console.log(createdAt, "timeme");
+    const options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    };
+
+    const formattedDate = createdAt.toLocaleString("en-US", options);
+
     const addCoinDetails = new Coin({
       coinName: coinName,
       price: updatedCoinPrice,
-      createdAt: createdAt,
+      createdAt: formattedDate,
     });
 
     const saveCoin = await addCoinDetails.save();
