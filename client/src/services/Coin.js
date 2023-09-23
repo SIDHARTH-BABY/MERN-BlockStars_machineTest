@@ -3,6 +3,6 @@ import axios from "axios";
 const API = axios.create({ baseURL: "http://localhost:4000" });
 
 
-export const addCoinDetails=(coinName,coinPrice)=>API.post("/coin/addCoinDetails",{coinName,coinPrice})
+export const addCoinDetails=(coinName,coinPrice,userId)=>API.post("/coin/addCoinDetails",{coinName,coinPrice,userId})
 
-export const fetchALLCoins=()=>API.get("/coin/getAllCoins")
+export const fetchALLCoins=(userId)=>API.get(`/coin/getAllCoins/${userId}`)

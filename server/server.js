@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import coinRoute from "./routes/coinRoute.js"
-
+import coinRoute from "./routes/coinRoute.js";
+import userRoute from "./routes/userRoute.js";
 
 dotenv.config();
 const app = express();
@@ -22,5 +22,5 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
   });
 });
 
-
-app.use("/coin",coinRoute)
+app.use("/coin", coinRoute);
+app.use("/user", userRoute);

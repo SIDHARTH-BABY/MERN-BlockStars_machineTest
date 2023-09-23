@@ -1,25 +1,33 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { addCoinDetails, fetchALLCoins } from "../../services/Coin";
+import { useNavigate } from "react-router-dom";
+import { userContext } from "../../App";
 
 const Coin = () => {
   const coinNameRef = useRef();
   const cointPriceRef = useRef();
-
+  const navigate = useNavigate();
   const [coinData, setCoinData] = useState([]);
   const [itemAdded, setItemAdded] = useState();
   const [validate, setValidate] = useState(true);
   const [numValidate, setNumValidate] = useState(true);
+  const user = useContext(userContext);
+  console.log(user ? user.id : "pp", "userOnee");
+  const userId = user ? user.id : "";
   useEffect(() => {
     try {
       const getItems = async () => {
-        const response = await fetchALLCoins();
+        const response = await fetchALLCoins(userId);
         if (response.data.success) {
-          setCoinData(response.data.data);
+          console.log(response.data.data.coinDetails,'coinDetails');
+          setCoinData(response.data.data.coinDetails);
+        }else{
+          console.log(response.data.message);
         }
       };
       getItems();
     } catch (error) {}
-  }, [itemAdded]);
+  }, [itemAdded,user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +35,7 @@ const Coin = () => {
     let coinPrice = parseFloat(cointPriceRef.current.value);
     setValidate(true);
     setNumValidate(true);
-    if (coinName === "" || isNaN(coinPrice)) {
+    if (coinName === "" || isNaN(cointPriceRef.current.value)) {
       if (coinName === "") {
         setValidate(false);
       }
@@ -36,18 +44,33 @@ const Coin = () => {
       }
       return; // Exit early if there are validation errors
     }
+    const userId = user ? user.id : "";
     try {
-      const response = await addCoinDetails(coinName, coinPrice);
+      const response = await addCoinDetails(coinName, coinPrice, userId);
       if (response.data.success) {
         setItemAdded(response.data.data);
         coinNameRef.current.value = "";
         cointPriceRef.current.value = "";
+      }else{
+        console.log(response.data.message);
       }
     } catch (error) {}
   };
 
   return (
     <div>
+      <div class="flex justify-end mr-32">
+        <button
+          onClick={() => {
+            localStorage.clear();
+            navigate("/login");
+          }}
+          class="rounded-full bg-red-500 w-28 mt-5 h-7 text-sm font-semibold"
+        >
+          LogOut
+        </button>
+      </div>
+
       <div class="flex justify-center ">
         <div class="w-72 h-40 mt-32">
           <form onSubmit={handleSubmit}>
